@@ -26,3 +26,8 @@ To see error logs from sample data in the output CSV file (such as denoting whet
 One of the more obvious areas for improvement if this was a production application would be to handle error messages as error codes rather than raw strings; as it currently stands, the messages are useful for developers but otherwise unwieldy to use in code.
 
 Similarly, there's a TODO comment to the effect of "actually dump these error logs somewhere". Since actually outputting them would result in an invalid CSV file, right now it's only useful for manually testing (still valuable, but definitely not ideal).
+
+### Streaming data versus loading up-front
+Right now the app only supports loading an entire CSV into memory before executing any transactions. However, the `ClientAccountManager` struct is capable of accepting transactions via a message queue, HTTP request, or some other medium. It would be straightforward to hook up the `process_transaction` method to an API endpoint instead of iterating over a vec and, as long as requests are arriving in the desired sequence, everything would still work.
+
+However, this does leave the possibility of race conditions unless we're relying on another tool that ensures all messages arrive in the intended sequence (such as a message queue guaranteeing that messages will be handled in the expected order). Otherwise, we would need to add some sort of mechanism to determine which order transactions should be executed in.
